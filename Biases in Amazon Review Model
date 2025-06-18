@@ -1,0 +1,87 @@
+# Bias in Amazon Reveiw model (Bias risks)
+1.Brand sentiment bias: The results show more positive reviews for popular brands hence higher sentiment scores and low sentiment scores for less popular brands.
+# Bias Mitigation Using spaCy’s Rule-Based Systems
+import spacy
+nlp = spacy.load('en_core_web_sm')
+
+# Sample Amazon review
+text = "The new iPhone is amazing, but Samsung Galaxy is terrible!"
+doc = nlp(text)
+
+# Extract entities (brands)
+print([(ent.text, ent.label_) for ent in doc.ents])
+
+# Apply sentiment correction
+if "Samsung" in text:
+    adjusted_sentiment = "neutral"  # Adjust bias if needed
+2. Sentiment bias: The model may show a tendency to assign higher sentiment scores to reviews that use positive language, regardless of the actual product quality.
+# Sentiment bias mitigation using spaCy
+import spacy
+from textblob import TextBlob
+
+# Load spaCy NLP model
+nlp = spacy.load('en_core_web_sm')
+
+# Sample product review (positive words but with negative implications)
+review = "This laptop looks great, but it constantly crashes and is unusable!"
+
+# Process text with spaCy
+doc = nlp(review)
+
+# Extract sentiment score using TextBlob
+blob = TextBlob(review)
+original_sentiment = blob.sentiment.polarity  # Range: -1 (negative) to +1 (positive)
+
+# Rule-based correction: Reduce sentiment score if negative aspects are detected
+negative_keywords = ["crashes", "unusable", "fails", "poor", "terrible", "bad"]
+adjusted_sentiment = original_sentiment
+
+# Check for negative keywords
+for token in doc:
+    if token.text.lower() in negative_keywords:
+        adjusted_sentiment -= 0.4  # Adjust score downward based on negative context
+
+# Ensure sentiment remains in valid range (-1 to 1)
+adjusted_sentiment = max(-1, min(1, adjusted_sentiment))
+
+# Output corrected sentiment analysis
+print(f"Original Sentiment Score: {original_sentiment}")
+print(f"Adjusted Sentiment Score: {adjusted_sentiment}")
+
+3. Product category bias: The model may favor certain product categories over others, leading to skewed sentiment analysis.
+Product category bias mitigation using spaCy
+import spacy
+from textblob import TextBlob
+from collections import defaultdict
+
+# Load spaCy model
+nlp = spacy.load('en_core_web_sm')
+
+# Sample product reviews across categories
+reviews = [
+    ("This laptop is amazing and super fast!", "Electronics"),
+    ("The coffee maker works fine but makes noise.", "Kitchen"),
+    ("This chair is uncomfortable and overpriced.", "Furniture"),
+    ("These headphones have great sound quality!", "Electronics")
+]
+
+# Sentiment analysis with category balancing
+category_sentiments = defaultdict(list)
+
+for review, category in reviews:
+    doc = nlp(review)
+    sentiment_score = TextBlob(review).sentiment.polarity  # Score from -1 to 1
+    category_sentiments[category].append(sentiment_score)
+
+# Normalize sentiment scores per category
+category_adjusted_scores = {
+    category: sum(scores) / len(scores) for category, scores in category_sentiments.items()
+}
+
+# Display corrected sentiment scores
+print("Original Sentiment Analysis per Category:")
+for category, score in category_adjusted_scores.items():
+    print(f"{category}: {round(score, 2)}")
+
+
+
