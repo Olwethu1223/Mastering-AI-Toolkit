@@ -1,0 +1,5 @@
+Title: Debugging TensorFlow: Fixing Shape Mismatch with Loss Functions
+
+
+While training a CNN on the MNIST dataset using TensorFlow, a ValueError occurred due to a mismatch between the label format and the loss function. I used to_categorical() to one-hot encode the labels, but the model was compiled with sparse_categorical_crossentropy, which expects integer labels.
+To fix the bug, I changed the loss function to categorical_crossentropy, which correctly accepts one-hot encoded labels. Alternatively, I could have removed the one-hot encoding and kept the original sparse labels.
